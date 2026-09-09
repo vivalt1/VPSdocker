@@ -52,11 +52,11 @@ for VOL in "${VOLUMES[@]}"; do
         
         SIZE=$(du -h "$OUT_FILE" | cut -f1)
         echo "   ✅ 完成 ($SIZE) -> $OUT_FILE"
-        ((SUCCESS++))
+        SUCCESS=$((SUCCESS + 1))
         echo "$VOL $OUT_FILE $SIZE SUCCESS" >> "$MANIFEST"
     else
         echo "   ❌ 失败"
-        ((FAILED++))
+        FAILED=$((FAILED + 1))
         echo "$VOL FAILED" >> "$MANIFEST"
     fi
 done

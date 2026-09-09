@@ -37,7 +37,7 @@ while IFS= read -r line; do
     [[ "$tag" == "<none>" ]] && continue
     [[ -n "$FILTER" && "$repo" != *"$FILTER"* ]] && continue
     IMAGES+=("$repo:$tag")
-done < <(docker images --format "{{.Repository}} {{.Tag}}" | grep -v "^<none>")
+done < <(docker images --format "{{.Repository}} {{.Tag}}" | grep -v "^<none>" | grep -v "^$REGISTRY/$GITHUB_USER")
 
 if [[ ${#IMAGES[@]} -eq 0 ]]; then
     echo "⚠️  没有找到匹配的镜像"
@@ -65,16 +65,16 @@ for IMG in "${IMAGES[@]}"; do
         echo "   🚀 推送中..."
         if docker push "$TARGET"; then
             echo "   ✅ 推送成功"
-            ((SUCCESS++))
+            SUCCESS=$((SUCCESS + 1))
             echo "$IMG -> $TARGET SUCCESS" >> "$MANIFEST"
         else
             echo "   ❌ 推送失败"
-            ((FAILED++))
+            FAILED=$((FAILED + 1))
             echo "$IMG -> $TARGET FAILED (push)" >> "$MANIFEST"
         fi
     else
         echo "   ❌ 标签失败"
-        ((FAILED++))
+        FAILED=$((FAILED + 1))
         echo "$IMG -> $TARGET FAILED (tag)" >> "$MANIFEST"
     fi
 

@@ -19,6 +19,9 @@ backup-volumes-*/
 # ===== 数据卷归档 =====
 *.tar.gz
 *.tar
+!volumes/*.tar.gz
+!volumes/manifest.txt
+!volumes/summary.txt
 
 # ===== IDE/OS =====
 .vscode/
