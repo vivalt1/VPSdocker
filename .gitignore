@@ -1,0 +1,27 @@
+# Docker Backup - Git 忽略规则
+
+# ===== 备份产出目录 =====
+backup-*/
+backup-images-*/
+backup-compose-*/
+backup-volumes-*/
+
+# ===== 敏感信息 =====
+.env
+.env.*
+!.env.example
+
+# ===== 临时文件 =====
+*.tmp
+*.log
+*.pid
+
+# ===== 数据卷归档 =====
+*.tar.gz
+*.tar
+
+# ===== IDE/OS =====
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
