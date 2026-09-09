@@ -2,6 +2,7 @@
 set -euo pipefail
 
 GITHUB_USER="${GITHUB_USER:-vivalt1}"
+GITHUB_REPO="${GITHUB_REPO:-vpsdocker}"
 GITHUB_TOKEN="${GITHUB_TOKEN:-}"
 REGISTRY="ghcr.io"
 
@@ -11,15 +12,16 @@ COMPOSE_FILE="${3:-docker-compose.yml}"
 ENV_FILE="${4:-.env}"
 
 if [[ -z "$REPO_NAME" ]]; then
-    echo "用法: $0 <仓库名> [备份目录] [compose文件] [.env]"
-    echo "示例: $0 alist ./backup-full-20240101-120000 docker-compose.yml .env.prod"
+    echo "用法: $0 <镜像名> [备份目录] [compose文件] [.env]"
+    echo "示例: $0 xhofe-alist-latest ./backup-full-20240101-120000 docker-compose.yml .env.prod"
     exit 1
 fi
 
 echo "=== 从 GitHub Container Registry 恢复 ==="
 echo "Registry: $REGISTRY"
 echo "User: $GITHUB_USER"
-echo "Repo: $REPO_NAME"
+echo "Repo: $GITHUB_REPO"
+echo "Image: $REPO_NAME"
 echo ""
 
 echo "$GITHUB_TOKEN" | docker login "$REGISTRY" -u "$GITHUB_USER" --password-stdin
@@ -51,20 +53,16 @@ else
 fi
 
 echo ""
-echo "📥 加载 Docker 镜像..."
-IMAGE_DIR="$BACKUP_DIR"
-if [[ -d "$IMAGE_DIR" ]]; then
-    for archive in "$IMAGE_DIR"/*.tar.gz; do
-        [[ -f "$archive" ]] || continue
-        echo "   加载: $(basename "$archive")"
-        if docker load < "$archive"; then
-            echo "   ✅ 加载成功"
-        else
-            echo "   ⚠️  加载失败: $archive"
-        fi
-    done
+echo "📥 拉取 Docker 镜像..."
+IMAGE_NAME="$REPO_NAME"
+TARGET_IMAGE="$REGISTRY/$GITHUB_USER/$GITHUB_REPO/$IMAGE_NAME:latest"
+echo "   拉取: $TARGET_IMAGE"
+if docker pull "$TARGET_IMAGE"; then
+    echo "   ✅ 拉取成功"
+    docker tag "$TARGET_IMAGE" "$IMAGE_NAME:latest"
+    echo "   ✅ 已 tag 为 $IMAGE_NAME:latest"
 else
-    echo "   ⚠️  镜像目录不存在: $IMAGE_DIR"
+    echo "   ⚠️  拉取失败: $TARGET_IMAGE"
 fi
 
 if [[ -f "$COMPOSE_FILE" ]]; then

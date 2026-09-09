@@ -6,6 +6,7 @@ set -euo pipefail
 
 # ========== 配置区域 ==========
 GITHUB_USER="${GITHUB_USER:-vivalt1}"
+GITHUB_REPO="${GITHUB_REPO:-vpsdocker}"
 GITHUB_TOKEN="${GITHUB_TOKEN:-}"
 REGISTRY="ghcr.io"
 # ===============================
@@ -18,6 +19,7 @@ mkdir -p "$BACKUP_ROOT"
 echo "=== 备份 Docker 镜像到 GitHub Container Registry ==="
 echo "Registry: $REGISTRY"
 echo "User: $GITHUB_USER"
+echo "Repo: $GITHUB_REPO"
 echo "Filter: ${FILTER:-无}"
 echo ""
 
@@ -57,7 +59,7 @@ echo "" >> "$MANIFEST"
 
 for IMG in "${IMAGES[@]}"; do
     SAFE_NAME=$(echo "$IMG" | sed 's|/|-|g' | sed 's|:|-|g')
-    TARGET="$REGISTRY/$GITHUB_USER/$SAFE_NAME:latest"
+    TARGET="$REGISTRY/$GITHUB_USER/$GITHUB_REPO/$SAFE_NAME:latest"
 
     echo "📦 处理: $IMG → $TARGET"
 
